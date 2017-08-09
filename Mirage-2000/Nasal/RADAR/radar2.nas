@@ -333,9 +333,11 @@ var Radar = {
                 
                 # now we test the model name to guess what type it is:
                 me.pathNode = c.getNode("sim/model/path");
+
                 if (me.pathNode != nil) {
                     me.path = me.pathNode.getValue();
                     me.model = split(".", split("/", me.path)[-1])[0];
+                    u.set_model(me.model);#used for RCS
                     foreach (var testMe ; listOfShipModels) {
                         if (testMe == me.model) {
                            # Its a ship, Mirage ground radar will pick it up
@@ -838,6 +840,11 @@ var Radar = {
         {
             return;
         }
+        append(me.Check_List, rcs.inRadarRange(SelectedObject, 60, 3.2));# Radar RDY: 60 NM for 3.2 RCS
+        if(me.Check_List[4] == 0)
+        {
+            return;
+        }
         #me.heat_sensor(SelectedObject);
         if( me.detectionTypetab=="laser" or skipDoppler == 1)
         {
@@ -845,7 +852,7 @@ var Radar = {
          }else{
           append(me.Check_List, me.doppler(SelectedObject));
          }
-        if(me.Check_List[4] == 0)
+        if(me.Check_List[5] == 0)
         {
             return;
         }
@@ -1142,7 +1149,7 @@ var Target = {
         if (obj.get_Callsign() == "GROUND_TARGET") {
             obj.type = missile.SURFACE;
         }
-        
+        obj.model = "";
         return obj;
     },
 
@@ -1599,6 +1606,14 @@ var Target = {
 
     isPainted: func() {
         return 1;            # Shinobi this is if laser/lock is still on it. Used for laser and semi-radar guided missiles/bombs.
+    },
+
+    get_model: func {
+        return me.model;
+    },
+
+    set_model: func (mdl) {
+        me.model = mdl;
     },
 
     list : [],
